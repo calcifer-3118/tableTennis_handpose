@@ -1,9 +1,9 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
+// import * as dat from 'dat.gui'
 import * as CANNON from 'cannon-es'
-import CannonDebugger from 'cannon-es-debugger'
+// import CannonDebugger from 'cannon-es-debugger'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import gsap from 'gsap'
 // import {RGBELoader} from 'three/examples/jsm/loaders/RGBELoader'
@@ -11,20 +11,39 @@ import {Hands} from '@mediapipe/hands'
 import {Camera} from '@mediapipe/camera_utils'
 import {Drawing} from '@mediapipe/drawing_utils'
 
-
-
+let isMuted = false;
+window.doalert = (checkboxElem)=>{
+    if (checkboxElem.checked) {
+            document.getElementsByClassName('fas fa-volume-up')[0].style.display = "block";
+            document.getElementsByClassName('fas fa-volume-mute')[0].style.display = "none";
+            isMuted = false
+        } else {
+           document.getElementsByClassName('fas fa-volume-mute')[0].style.display = "block";
+           document.getElementsByClassName('fas fa-volume-up')[0].style.display = "none";
+           isMuted = true
+        }
+   }     
 
 window.loadGame = () => {
 
   
-    
+    /**
+     * UI
+     */
     const modelViewer = document.getElementsByTagName('model-viewer')
     modelViewer[0].style.visibility = 'hidden'
+
+    document.getElementsByClassName('search-box')[0].style.display = 'none'
+    document.getElementsByClassName('options')[0].style.display = 'none'
+    document.getElementsByClassName('score')[0].style.display = 'flex'
+
     
+
     /**
      * Debug
      */
     // const gui = new dat.GUI()
+
     
     /**
      * Base
@@ -36,15 +55,7 @@ window.loadGame = () => {
     // Scene
     const scene = new THREE.Scene()
     
-    
-    // const rgbeLoader = new RGBELoader();
-    // rgbeLoader.load('/env/bg.hdr', (texture) => {
-    //     texture.mapping = THREE.EquirectangularReflectionMapping;
-    //     scene.background = texture;
-    //     scene.environment = texture
-    
-    // })
-    
+   
     
     /**
      * Physics World
@@ -71,7 +82,7 @@ window.loadGame = () => {
          * Player
          */
         class Player {
-            constructor(name, score, physicsBody, mesh, hitTable, toServe, won) {
+            constructor(name, score, physicsBody, mesh, hitTable, toServe, won, UI) {
             this.name = name
             this.score = score,
                 this.physicsBody = physicsBody,
@@ -87,11 +98,14 @@ window.loadGame = () => {
     }
 
     //Initialize Players  
-    const p1 = new Player('p1', 0)
-    const p2 = new Player('p2', 0)
+    const p1 = new Player('Player 1', 0)
+    const p2 = new Player('AI', 0)
+
     
-    
-    
+    if(document.getElementsByClassName('search-text').value)
+        p1.name = document.getElementsByClassName('search-text').value;
+    document.getElementsByClassName('p1_name').innerHTML = p1.name;
+
     /**
      * Load Models
      */
@@ -143,8 +157,7 @@ window.loadGame = () => {
     // ballBody.position.set(3.33, 2.588, -1.93)
     world.addBody(ballBody)
     
-    
-    
+
     const createPlaneBody = (dimensions) => {
         const planeShape = new CANNON.Box(new CANNON.Vec3(dimensions.x, dimensions.y, dimensions.z))
         const planeBody = new CANNON.Body()
@@ -176,8 +189,6 @@ window.loadGame = () => {
     p2.physicsBody.quaternion.setFromEuler(0, Math.PI / 2, 0)
     
 
-
-    
     
     
     /**
@@ -192,11 +203,36 @@ window.loadGame = () => {
     let time = 0;
     let collision = 0;
     let collision_p2 = 0;
-    
+
+    //difficulty
+    let difficulty = document.querySelector('.slider').value / 100; 
+    let difficultyInverse;
+    console.log(difficulty)
+    const calcDiffInverse = (difficulty)=>{
+        if(difficulty == 1)
+            difficultyInverse = 10;
+        else if(difficulty == 2)
+            difficultyInverse = 9;
+        else if(difficulty == 3)
+            difficultyInverse = 8;
+        else if(difficulty == 4)
+            difficultyInverse = 7;
+        else if(difficulty == 5)
+            difficultyInverse = 6;
+        else if(difficulty == 6)
+            difficultyInverse = 5;
+        else if(difficulty == 7)
+            difficultyInverse = 4;
+        else if(difficulty == 8)
+            difficultyInverse = 3;
+        else if(difficulty == 9)
+            difficultyInverse = 2;
+        else if(difficulty == 10)
+            difficultyInverse = 0;
+    }
+    calcDiffInverse(difficulty)
     let gamePaused;
     
-    
-    const mouseMove = new THREE.Vector2();
     
     /**
      * Racket Controls
@@ -222,7 +258,7 @@ window.loadGame = () => {
               if (results.multiHandLandmarks) {
 
                 if(results.multiHandLandmarks[0]){
-                    const x = (-results.multiHandLandmarks[0][0].x * 3) - 0.5;
+                    const x = (-results.multiHandLandmarks[0][0].x * 3.5);
                     const y = (-results.multiHandLandmarks[0][0].y * 3) + 5;
                     let z = (results.multiHandLandmarks[0][0].z * 1000000 * 3 ) - 2;
 
@@ -268,10 +304,10 @@ window.loadGame = () => {
     
     
     setInterval(() => {
-        time += 0.1
+        time += 0.1;
     }, 1000)
     
-   }
+}
         
     
     //Managing Collisions
@@ -281,7 +317,6 @@ window.loadGame = () => {
         if (obj.body.id === table_net.id) {
 
             lastHit = 'net'
-
             rack_controls = false;
             if (ballBody.position.z > 3.33)
                 respawn(300)
@@ -479,6 +514,18 @@ window.loadGame = () => {
                 gameWon(p2)
             }
         }
+
+        //Update UI
+        const progress_p1 = document.querySelector('.progress-done_p1');
+        document.querySelector('.p1_num').innerHTML = p1.score + '&#160 &#160 &#160';
+        progress_p1.style.width = p1.score/11 * 100 + '%';
+        progress_p1.style.opacity = 1;
+
+        const progress_p2 = document.querySelector('.progress-done_p2');
+        document.querySelector('.p2_num').innerHTML = p2.score;
+        progress_p2.style.width = p2.score/11 * 100 + '%';
+        progress_p2.style.opacity = 1;
+
     }
 
     //Stop Game
@@ -493,6 +540,9 @@ window.loadGame = () => {
         document.body.style.cursor = 'none'
     }
     const gameWon = (winner) => {
+        document.querySelector('.scoreNumber').style.display = 'none'
+        document.querySelector('.gameWon').style.display = 'flex'
+        document.querySelector('.gameWon_text').innerHTML = `${winner.name} won`
         gamePaused = true;
         console.log(`game won by:${winner.name}`)
         ballBody.sleep();
@@ -602,9 +652,10 @@ window.loadGame = () => {
             });
     }
     
-    loadAudio('/sounds/tableHit.mp3', tableHitSound)
-    loadAudio('/sounds/hit.mp3', hitSound)
-    
+    if(!isMuted){
+        loadAudio('/sounds/tableHit.mp3', tableHitSound)
+        loadAudio('/sounds/hit.mp3', hitSound)
+    }
 
 
     /**
@@ -658,11 +709,13 @@ window.loadGame = () => {
 
         //Opponent Racket tracking ball position
         if (ballBody.position.y >= ground.position.y + 0.5) {
-            gsap.to(p2.physicsBody.position, {
-                y: ballBody.position.y,
-                z: ballBody.position.z,
-                ease: 'out'
-            })
+            const currPos = ballBody.position;
+             gsap.to(p2.physicsBody.position, {
+                     y: currPos.y,
+                     z: currPos.z,
+                     ease: 'out',
+                     delay: difficultyInverse / 50
+                })
         }
         else if (ballBody.position.y <= -1) {
             respawn(300)
