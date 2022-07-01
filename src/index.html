@@ -18,7 +18,7 @@
 <body>
     <canvas class="webgl"></canvas>
     <canvas class="canvas"></canvas>
-    <video class="video"></video>
+    <video class="video" style="display: none;"></video>
     
     <div class="score">
         <div class="p1">
@@ -109,13 +109,15 @@
                 <svg height="40" width="150" xmlns="http://www.w3.org/2000/svg">
                   <rect id="shape" height="40" width="150" />
                   <div id="text">
-                    <a onclick="window.loadGame()"><span class="spot"></span>Lets' Go</a>
+                    <a onclick="window.loadHand()"><span class="spot"></span>Lets' Go</a>
                   </div>
                 </svg>
               </div>
         </div>
     </div>
 
+
+    <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_rwbbf6ns.json" class="loading" background="#DE80AA"  speed="1"  style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; display: none; z-index: 900;"  loop  autoplay></lottie-player>
 
 
    

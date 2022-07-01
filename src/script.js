@@ -25,10 +25,54 @@ window.doalert = (checkboxElem)=>{
 
 window.loadHTP = ()=>{
     document.getElementsByClassName('card-container_htp')[0].style.display = 'initial';
-
 }   
 
-window.loadGame = () => {
+window.loadHand = ()=>{
+
+    document.getElementsByClassName('loading')[0].style.display = 'initial';
+    document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
+    document.getElementsByClassName('options')[0].style.display = 'none';
+
+    const handDetection = ()=>{
+        const videoElement = document.getElementsByClassName('video')[0];
+               
+        let isExecuted = false;
+        let controlRacket;
+        function onResults(results) {
+            if(!isExecuted){
+                controlRacket = loadGame();
+                isExecuted = true;
+            }
+            controlRacket(results);
+        }
+
+        const hands = new Hands({locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+          onFrame: async () => {
+            await hands.send({image: videoElement});
+          },
+          width: 350,
+          height: 250
+        });
+        camera.start();
+}
+
+handDetection();
+
+
+}
+
+const loadGame = () => {
 
   
     /**
@@ -41,6 +85,8 @@ window.loadGame = () => {
     document.getElementsByClassName('card-container')[0].style.display = 'none'
     document.getElementsByClassName('score')[0].style.display = 'flex'
     document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
+    document.getElementsByClassName('loading')[0].style.display = 'none';
+
     
     /**
      * Base
@@ -214,74 +260,48 @@ window.loadGame = () => {
     /**
      * Racket Controls
     **/
+   let controlRacket;
    if(!gamePaused){
+    controlRacket = (results)=>{
+        const canvasElement = document.getElementsByClassName('canvas')[0];
+        const canvasCtx = canvasElement.getContext('2d');
     
-    const handDetection = ()=>{
-            const videoElement = document.getElementsByClassName('video')[0];
-            const canvasElement = document.getElementsByClassName('canvas')[0];
-            const canvasCtx = canvasElement.getContext('2d');
-
-            
-            function onResults(results) {
-                canvasCtx.save();
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                
-                canvasCtx.translate(250, 0);
-                canvasCtx.scale(-0.9, 0.9);
-                
-            //   canvasCtx.drawImage(
-            //       results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-              if (results.multiHandLandmarks) {
-
-                if(results.multiHandLandmarks[0]){
-                    const x = (-results.multiHandLandmarks[0][0].x * 3.5);
-                    const y = (-results.multiHandLandmarks[0][0].y * 3) + 5;
-                    let z = (results.multiHandLandmarks[0][0].z * 1000000 * 3 ) - 2;
-
-                    if(z > -0.3)
-                        z = -0.3;
-
-                    gsap.to(p1.physicsBody.position, { y:y, z:x,  x: z ,  duration:.2, ease:'expo-out'})
-                    // console.log(p1.physicsBody.position.x)
-                }
-
-                for (const landmarks of results.multiHandLandmarks) {
-                  drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-                                 {color: '#47423c', lineWidth: 3});
-                  drawLandmarks(canvasCtx, landmarks, {color: '#908579', lineWidth: 1});
-                }
-              }
-              canvasCtx.restore();
-            }
-
-            const hands = new Hands({locateFile: (file) => {
-              return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-            }});
-            hands.setOptions({
-              maxNumHands: 1,
-              modelComplexity: 1,
-              minDetectionConfidence: 0.5,
-              minTrackingConfidence: 0.5
-            });
-            hands.onResults(onResults);
-
-            const camera = new Camera(videoElement, {
-              onFrame: async () => {
-                await hands.send({image: videoElement});
-              },
-              width: 350,
-              height: 250
-            });
-            camera.start();
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        
+        canvasCtx.translate(250, 0);
+        canvasCtx.scale(-0.9, 0.9);
+        
+    //   canvasCtx.drawImage(
+    //       results.image, 0, 0, canvasElement.width, canvasElement.height);
+    
+      if (results.multiHandLandmarks) {
+    
+        if(results.multiHandLandmarks[0]){
+            const x = (-results.multiHandLandmarks[0][0].x * 3.5);
+            const y = (-results.multiHandLandmarks[0][0].y * 3) + 5;
+            let z = (results.multiHandLandmarks[0][0].z * 1000000 * 3 ) - 2;
+    
+            if(z > -0.3)
+                z = -0.3;
+    
+            gsap.to(p1.physicsBody.position, { y:y, z:x,  x: z ,  duration:.2, ease:'expo-out'})
+            // console.log(p1.physicsBody.position.x)
+        }
+    
+        for (const landmarks of results.multiHandLandmarks) {
+          drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                         {color: '#47423c', lineWidth: 3});
+          drawLandmarks(canvasCtx, landmarks, {color: '#908579', lineWidth: 1});
+        }
+      }
+      canvasCtx.restore();
     }
+    
 
-    handDetection();
-    
-    
-    setInterval(() => {
-        time += 0.1;
-    }, 1000)
+  setInterval(() => {
+    time += 0.1;
+}, 1000)
     
 }
 
@@ -735,5 +755,7 @@ window.loadGame = () => {
     }
 
     loop()
+
+    return controlRacket;
     
 }
