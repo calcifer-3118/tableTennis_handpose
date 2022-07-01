@@ -209,26 +209,9 @@ window.loadGame = () => {
     let difficultyInverse;
     console.log(difficulty)
     const calcDiffInverse = (difficulty)=>{
-        if(difficulty == 1)
-            difficultyInverse = 10;
-        else if(difficulty == 2)
-            difficultyInverse = 9;
-        else if(difficulty == 3)
-            difficultyInverse = 8;
-        else if(difficulty == 4)
-            difficultyInverse = 7;
-        else if(difficulty == 5)
-            difficultyInverse = 6;
-        else if(difficulty == 6)
-            difficultyInverse = 5;
-        else if(difficulty == 7)
-            difficultyInverse = 4;
-        else if(difficulty == 8)
-            difficultyInverse = 3;
-        else if(difficulty == 9)
-            difficultyInverse = 2;
-        else if(difficulty == 10)
-            difficultyInverse = 0;
+       difficultyInverse = Math.round((Math.cos((difficulty *10) * Math.PI / 180)*10) - 0.2);
+       if(difficultyInverse<=3)
+          difficultyInverse++;
     }
     calcDiffInverse(difficulty)
     let gamePaused;
