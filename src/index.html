@@ -98,11 +98,31 @@
       </a>
     </div>
 
+
+    <div class="card-container_htp">
+        <div class="card">
+            <h1>How To Play</h1>
+            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+            <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_empnvxc1.json"  background="transparent"  speed="1"  style="width: 400px; position: absolute; top: -25%; left: 35%;"  loop autoplay></lottie-player>
+            <p class="htp_p" style="padding: 30px; margin:4px">Make sure you have a supported webcam and permissions for the webcam are granted. <br>Control the racket with your hand by moving it in front of the camera. Do a serve by pushing your hand forward.</p>
+            <div class="svg-wrapper">
+                <svg height="40" width="150" xmlns="http://www.w3.org/2000/svg">
+                  <rect id="shape" height="40" width="150" />
+                  <div id="text">
+                    <a onclick="window.loadGame()"><span class="spot"></span>Lets' Go</a>
+                  </div>
+                </svg>
+              </div>
+        </div>
+    </div>
+
+
+
    
 
     <model-viewer bounds="tight" src="/models/scene.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls environment-image="neutral" shadow-intensity="1.32" auto-rotate shadow-softness="1" camera-orbit="-324.3deg 72.61deg auto" min-camera-orbit="auto 33deg 12.14m" max-camera-orbit="auto 80deg auto" min-field-of-view="38.09deg">
         <button class="Hotspot" slot="hotspot-6" data-position="1.718199752457908m 1.7952758726521125m 0.9350524396117248m" data-normal="-0.7015896328786082m 0m -0.7125812143449055m" data-visibility-attribute="visible">
-        <div class="HotspotAnnotation" onclick="loadGame()">PLAY</div>
+        <div class="HotspotAnnotation" onclick="loadHTP()">PLAY</div>
         <div class="loader"></div>
         </div>
 
@@ -260,6 +280,14 @@ cards.forEach((card) => {
 });
 
     </script>
+
+
+
+
+
+
+
+
     
 </body>
 </html>

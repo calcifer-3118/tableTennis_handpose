@@ -1,15 +1,13 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-// import * as dat from 'dat.gui'
 import * as CANNON from 'cannon-es'
-// import CannonDebugger from 'cannon-es-debugger'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import gsap from 'gsap'
-// import {RGBELoader} from 'three/examples/jsm/loaders/RGBELoader'
 import {Hands} from '@mediapipe/hands'
 import {Camera} from '@mediapipe/camera_utils'
 import {Drawing} from '@mediapipe/drawing_utils'
+
 
 let isMuted = false;
 window.doalert = (checkboxElem)=>{
@@ -24,6 +22,12 @@ window.doalert = (checkboxElem)=>{
         }
    }     
 
+
+window.loadHTP = ()=>{
+    document.getElementsByClassName('card-container_htp')[0].style.display = 'initial';
+
+}   
+
 window.loadGame = () => {
 
   
@@ -36,14 +40,7 @@ window.loadGame = () => {
     document.getElementsByClassName('search-box')[0].style.display = 'none'
     document.getElementsByClassName('card-container')[0].style.display = 'none'
     document.getElementsByClassName('score')[0].style.display = 'flex'
-
-    
-
-    /**
-     * Debug
-     */
-    // const gui = new dat.GUI()
-
+    document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
     
     /**
      * Base
@@ -56,7 +53,6 @@ window.loadGame = () => {
     const scene = new THREE.Scene()
     
    
-    
     /**
      * Physics World
      */
@@ -101,10 +97,10 @@ window.loadGame = () => {
     const p1 = new Player('Player 1', 0)
     const p2 = new Player('AI', 0)
 
-    
     if(document.getElementsByClassName('search-text').value)
         p1.name = document.getElementsByClassName('search-text').value;
     document.getElementsByClassName('p1_name').innerHTML = p1.name;
+
 
     /**
      * Load Models
@@ -195,7 +191,6 @@ window.loadGame = () => {
      * Game Logic
      */
     
-
     //Physics Debugger
     // const cannonDebugger = new CannonDebugger(scene, world)
     
@@ -203,6 +198,7 @@ window.loadGame = () => {
     let time = 0;
     let collision = 0;
     let collision_p2 = 0;
+    let gamePaused;
 
     //difficulty
     let difficulty = document.querySelector('.slider').value / 10; 
@@ -213,7 +209,6 @@ window.loadGame = () => {
           difficultyInverse++;
     }
     calcDiffInverse(difficulty)
-    let gamePaused;
    
     
     /**
@@ -235,7 +230,7 @@ window.loadGame = () => {
                 canvasCtx.scale(-0.9, 0.9);
                 
             //   canvasCtx.drawImage(
-                //   results.image, 0, 0, canvasElement.width, canvasElement.height);
+            //       results.image, 0, 0, canvasElement.width, canvasElement.height);
 
               if (results.multiHandLandmarks) {
 
@@ -247,7 +242,6 @@ window.loadGame = () => {
                     if(z > -0.3)
                         z = -0.3;
 
-                    
                     gsap.to(p1.physicsBody.position, { y:y, z:x,  x: z ,  duration:.2, ease:'expo-out'})
                     // console.log(p1.physicsBody.position.x)
                 }
@@ -290,6 +284,7 @@ window.loadGame = () => {
     }, 1000)
     
 }
+
         
     
     //Managing Collisions
@@ -449,6 +444,7 @@ window.loadGame = () => {
                     else {
                         if (p1.toServe) {
                            setInterval(()=>{
+                            if(!gamePaused){
                                if(p1.physicsBody.position.x >= -0.4 && p1.toServe){
                                    ballBody.velocity.set(3, 2, Math.random() - .5)
                                    defaultContactMaterial.restitution = 1 + Math.random() / 10
@@ -456,6 +452,7 @@ window.loadGame = () => {
                                    p1.toServe = false
                                    serving = false
                                }
+                            }
                            }, 200) 
                         }
                     }
@@ -511,12 +508,15 @@ window.loadGame = () => {
     }
 
     //Stop Game
+    let velocity_before_pause;
     const pauseGame = () => {
         gamePaused = true;
+        velocity_before_pause = JSON.stringify(ballBody.velocity);
         ballBody.sleep();
         document.body.style.cursor = 'default'
     }
-    const resumeGame = () => {
+    const resumeGame = (pos) => {
+        ballBody.velocity.copy(JSON.parse(velocity_before_pause))
         gamePaused = false;
         ballBody.wakeUp();
         document.body.style.cursor = 'none'
@@ -525,7 +525,7 @@ window.loadGame = () => {
         document.querySelector('.scoreNumber').style.display = 'none'
         document.querySelector('.gameWon').style.display = 'flex'
         document.querySelector('.gameWon_text').innerHTML = `${winner.name} won`
-        gamePaused = true;
+        pauseGame();
         console.log(`game won by:${winner.name}`)
         ballBody.sleep();
     }
@@ -700,12 +700,11 @@ window.loadGame = () => {
                 })
         }
         else if (ballBody.position.y <= -1) {
-            respawn(300)
+            respawn(500)
         }
    
     
         if (serving) {
-        
             //placing ball at the racket for serve
             if (p1.toServe)
                 ballBody.position.set(p1.physicsBody.position.x + .4, p1.physicsBody.position.y, p1.physicsBody.position.z)
