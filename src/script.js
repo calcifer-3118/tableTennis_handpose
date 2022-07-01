@@ -34,7 +34,7 @@ window.loadGame = () => {
     modelViewer[0].style.visibility = 'hidden'
 
     document.getElementsByClassName('search-box')[0].style.display = 'none'
-    document.getElementsByClassName('options')[0].style.display = 'none'
+    document.getElementsByClassName('card-container')[0].style.display = 'none'
     document.getElementsByClassName('score')[0].style.display = 'flex'
 
     
@@ -205,34 +205,16 @@ window.loadGame = () => {
     let collision_p2 = 0;
 
     //difficulty
-    let difficulty = document.querySelector('.slider').value / 100; 
+    let difficulty = document.querySelector('.slider').value / 10; 
     let difficultyInverse;
-    console.log(difficulty)
     const calcDiffInverse = (difficulty)=>{
-        if(difficulty == 1)
-            difficultyInverse = 10;
-        else if(difficulty == 2)
-            difficultyInverse = 9;
-        else if(difficulty == 3)
-            difficultyInverse = 8;
-        else if(difficulty == 4)
-            difficultyInverse = 7;
-        else if(difficulty == 5)
-            difficultyInverse = 6;
-        else if(difficulty == 6)
-            difficultyInverse = 5;
-        else if(difficulty == 7)
-            difficultyInverse = 4;
-        else if(difficulty == 8)
-            difficultyInverse = 3;
-        else if(difficulty == 9)
-            difficultyInverse = 2;
-        else if(difficulty == 10)
-            difficultyInverse = 0;
+       difficultyInverse = Math.round((Math.cos((difficulty) * Math.PI / 180)*10) - 0.2);
+       if(difficultyInverse<=3)
+          difficultyInverse++;
     }
     calcDiffInverse(difficulty)
     let gamePaused;
-    
+   
     
     /**
      * Racket Controls
@@ -732,9 +714,9 @@ window.loadGame = () => {
       
             //making sure opponent serves whitin the range of the table
             if (p2.physicsBody.position.z <= -3.6)
-                gsap.to(p2.physicsBody.position, { z: p2.physicsBody.position.z + 0.5 })
+                gsap.to(p2.physicsBody.position, { z: p2.physicsBody.position.z + 1 })
             else if (p2.physicsBody.position.z >= -0.7) {
-                gsap.to(p2.physicsBody.position, { z: p2.physicsBody.position.z - 0.5 })
+                gsap.to(p2.physicsBody.position, { z: p2.physicsBody.position.z - 1 })
             }
          
         }

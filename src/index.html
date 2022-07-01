@@ -55,6 +55,42 @@
 
     </div>
 
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+
+<div class="card-container">
+    <div class="card">
+      
+        <div class="options">
+       
+            <div class="slider-container">
+                <div class="slider-bar"> <p class="slider_p"> Difficulty </p> </div>
+                
+                <svg class="slider-progress" viewBox="0 0 51 6">
+                    <path class="progress-path" xmlns="http://www.w3.org/2000/svg" d="M 13 3 L 20.5 3 Q 22 3 23 1" stroke="#5a38e0" stroke-width="1" fill="none" stroke-linecap="round"/>
+                </svg>
+                <div class="slider-circle" style="transform: translate(-50%, -50%) translateX(-2.5rem); top: 1em;">
+                    <div class="slider-text">0</div>
+                </div>
+                <input type="range" class="slider" value="400" min="-400" max="1400">
+            </div>
+           
+            <div class="music"> 
+                <i class="fas fa-volume-mute" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px; display: none;"></i>
+                <i class="fas fa-volume-up" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px;"></i>
+                <label class="switch">
+                    <input class="checkbox" type="checkbox" checked onchange="doalert(this)">
+                    <div>
+                        <span></span>
+                    </div>
+                </label>
+            </div>
+           
+        </div>
+        
+  </div>
+</div>
+
     <div class = 'search-box'>
         <input class = "search-text" type="text" placeholder = "Enter your GameTag...">
       <a href="#" class = "search-btn">
@@ -62,32 +98,7 @@
       </a>
     </div>
 
-    <div class="options">
-       
-        <div class="slider-container">
-            <div class="slider-bar"> <p class="slider_p"> Difficulty </p> </div>
-            
-            <svg class="slider-progress" viewBox="0 0 51 6">
-                <path class="progress-path" xmlns="http://www.w3.org/2000/svg" d="M 13 3 L 20.5 3 Q 22 3 23 1" stroke="#5a38e0" stroke-width="1" fill="none" stroke-linecap="round"/>
-            </svg>
-            <div class="slider-circle" style="transform: translate(-50%, -50%) translateX(-2.5rem); top: 1em;">
-                <div class="slider-text">0</div>
-            </div>
-            <input type="range" class="slider" value="400" min="-400" max="1400">
-        </div>
-       
-        <div class="music"> 
-            <i class="fas fa-volume-mute" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px; display: none;"></i>
-            <i class="fas fa-volume-up" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px;"></i>
-            <label class="switch">
-                <input class="checkbox" type="checkbox" checked onchange="doalert(this)">
-                <div>
-                    <span></span>
-                </div>
-            </label>
-        </div>
-       
-    </div>
+   
 
     <model-viewer bounds="tight" src="/models/scene.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls environment-image="neutral" shadow-intensity="1.32" auto-rotate shadow-softness="1" camera-orbit="-324.3deg 72.61deg auto" min-camera-orbit="auto 33deg 12.14m" max-camera-orbit="auto 80deg auto" min-field-of-view="38.09deg">
         <button class="Hotspot" slot="hotspot-6" data-position="1.718199752457908m 1.7952758726521125m 0.9350524396117248m" data-normal="-0.7015896328786082m 0m -0.7125812143449055m" data-visibility-attribute="visible">
@@ -110,7 +121,7 @@
     <script>
             
 let i = 0;
-let inputpos = 0.2;
+let inputpos = 0.4;
 let offsetY = 0;
 const slider = document.querySelector(".slider");
 const slidercircle = document.querySelector(".slider-circle");
@@ -203,6 +214,51 @@ setInterval(function () {
 	
 }, 1000 / 60);
             
+    </script>
+
+    <script>
+        const cards = document.querySelectorAll(".card");
+// const onDocumentMouseMoveHandler = (evt) => {
+//   evt.preventDefault();
+
+//   requestAnimationFrame(() => {
+//     if (!evt.target.closest('.card')) {
+//       card.style.transform = 'perspective(1000px) scale(1) rotateX(0) rotateY(0)';
+//     }
+//   });
+// };
+// document.addEventListener('mousemove', onDocumentMouseMoveHandler)
+cards.forEach((card) => {
+  const height = card.clientHeight;
+  const width = card.clientWidth;
+
+  const mouseMoveHandler = (evt) => {
+    evt.preventDefault();
+
+    requestAnimationFrame(() => {
+      const xRotation = -30 * ((evt.layerY - height / 2) / height);
+      const yRotation = 20 * ((evt.layerX - width / 2) / width);
+
+      card.style.transform = `perspective(1000px) scale(1.05) rotateX(${xRotation}deg) rotateY(${yRotation}deg)`;
+    });
+  };
+
+  card.addEventListener("mousemove", mouseMoveHandler);
+
+  card.addEventListener("mouseenter", (evt) => {
+    evt.preventDefault();
+    card.addEventListener("mousemove", mouseMoveHandler);
+  });
+
+  card.addEventListener("mouseout", (evt) => {
+    evt.preventDefault();
+    card.style.transform = "perspective(1000px) scale(1) rotateX(0) rotateY(0)";
+    card.removeEventListener("mousemove", mouseMoveHandler);
+  });
+  
+ 
+});
+
     </script>
     
 </body>
