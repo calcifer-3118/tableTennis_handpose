@@ -6,14 +6,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import gsap from 'gsap'
 import {Hands} from '@mediapipe/hands'
 import {Camera} from '@mediapipe/camera_utils'
-import {Drawing} from '@mediapipe/drawing_utils'
-import { mod } from '@tensorflow/tfjs'
-import { randInt } from 'three/src/math/MathUtils'
+import { GUI } from 'dat.gui'
 
+
+//Debugging
+const gui = new GUI();
 
 let isMuted = false;
 let models;
 let models_duplicate;
+let env;
 window.doalert = (checkboxElem)=>{
     if (checkboxElem.checked) {
             document.getElementsByClassName('fas fa-volume-up')[0].style.display = "block";
@@ -59,6 +61,7 @@ window.loadHand = ()=>{
 
             models = await loadModel('/models/scene.glb')
             models_duplicate = await loadModel('/models/scene.glb')
+            env = await loadModel('/models/env.glb')
             loaded = true;
 
         }
@@ -187,14 +190,19 @@ const loadGame = () => {
     let animPlaying = false;
     let rak2_animPlaying = false;
 
-    if(models && models_duplicate){
+    if(models && models_duplicate && env){
 
         tableMesh = models.scene.children[0];
         p1.mesh = models.scene.children[1];
         p2.mesh = models_duplicate.scene.children[1];
         ballMesh = models.scene.children[2];
         tableMesh.position.set(0, 0, 0)
-        scene.add(p1.mesh, p2.mesh, ballMesh, tableMesh)    
+        env.scene.scale.set(2.5, 2.5, 2.5)
+
+        env.scene.position.set(4.23, 0 , 7.3)
+        env.scene.rotation.set(0,-89.53,0)
+    
+        scene.add(p1.mesh, p2.mesh, ballMesh, tableMesh, env.scene)    
     }
     
     
@@ -297,9 +305,13 @@ const loadGame = () => {
             const x = (-results.multiHandLandmarks[0][0].x * 3.5);
             const y = (-results.multiHandLandmarks[0][0].y * 3) + 5;
             let z = (results.multiHandLandmarks[0][0].z * 1000000 * 3 ) - 2;
-    
-            if(z > -0.3)
-                z = -0.3;
+            
+            if(z > 2) z = 2
+            if(p1.physicsBody.position.y <= 2.7){
+                if(z > -0.3) z = -0.3
+            }
+
+
     
             gsap.to(p1.physicsBody.position, { y:y, z:x,  x: z ,  duration:.2, ease:'expo-out'})
             // console.log(p1.physicsBody.position.x)
@@ -343,14 +355,16 @@ const loadGame = () => {
                 collision = 0;
 
                 // Check for Double hit on the same side of the table
-                // if (!serving) {
-                //     collision_p2 += 1
-                //     if (collision_p2 >= 2) {
-                //         p1.hitTable = false;
-                //         p2.hitTable = true;
-                //         respawn(300, p2)
-                //     }
-                // }
+                if(difficulty/10 > 5){
+                    if (!serving) {
+                        collision_p2 += 1
+                        if (collision_p2 >= 2) {
+                            p1.hitTable = false;
+                            p2.hitTable = true;
+                            respawn(300, true, p1, p2)
+                        }
+                    }
+                }
 
                 p1.hitTable = true
                 p2.hitTable = false
@@ -362,14 +376,16 @@ const loadGame = () => {
                 collision_p2 = 0;
 
                 // Check for Double hit on the same side of the table
-                // if (!serving) {
-                //     collision += 1
-                //     if (collision >= 2) {
-                //         p2.hitTable = false;
-                //         p1.hitTable = true;
-                //         respawn(300, p1)
-                //     }
-                // }
+                if(difficulty/10 > 5){
+                     if (!serving) {
+                         collision += 1
+                         if (collision >= 2) {
+                             p2.hitTable = false;
+                             p1.hitTable = true;
+                             respawn(300, true, p2, p1)
+                         }
+                     }
+                }
 
                 p2.hitTable = true
                 p1.hitTable = false
@@ -391,7 +407,7 @@ const loadGame = () => {
                 //if PlayerRacket 
                 if (!p2.hitTable) {
                     p2.hitTable = true;
-                    respawn(300, p2)
+                    respawn(300)
                 }
                 
                 //Racket Animations
@@ -421,7 +437,7 @@ const loadGame = () => {
                 //Checking if OpponentRacket 
                 if (!p1.hitTable) {
                     p1.hitTable = true;
-                    respawn(300, p1)
+                    respawn(300)
                 }
 
                 //Racket Animation
@@ -450,10 +466,10 @@ const loadGame = () => {
 
     //Respwaning
     let serving = false;
-    const respawn = (delay) => {
+    const respawn = (delay, doubleHit, scorer, opp) => {
         time = 0;
         serving = true;
-        ScoreManager();
+        ScoreManager(doubleHit, scorer, opp);
         console.log(`respawning in ${delay}ms`)
         
         setTimeout(() => {
@@ -521,17 +537,27 @@ const loadGame = () => {
     
     //Scoring
     let executed = false;
-    const ScoreManager = () => {
-        if (p1.hitTable) {
-            p1.addScore();
-            p1.toServe = true;
-            p2.toServe = false
+    const ScoreManager = (doubleHit, scorer, opp) => {
+        if(!doubleHit)
+        {
+            if (p1.hitTable) {
+                p1.addScore();
+                p1.toServe = true;
+                p2.toServe = false
+            }
+            else if (p2.hitTable) {
+                p2.addScore();
+                p2.toServe = true;
+                p1.toServe = false;
+            }
+
         }
-        else if (p2.hitTable) {
-            p2.addScore();
-            p2.toServe = true;
-            p1.toServe = false;
+        else{
+            scorer.addScore();
+            scorer.toServe = true;
+            opp.toServe = false
         }
+
         setTimeout(() => console.log(p1.score, p2.score), 200)
         
         if (p1.score >= 11) {
@@ -581,6 +607,9 @@ const loadGame = () => {
     const gameWon = (winner) => {
         won = true;
         setTimeout(()=> conitnue_btn.style.display = 'flex', 2000)
+
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 2;
         
         const player = document.createElement('lottie-player') 
         player.style = "display: block; width: 300px; height: 300px; z-index: 500; position: absolute; left: 40%; top:-30%";
@@ -660,6 +689,8 @@ const loadGame = () => {
      */
     // Base camera
     const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+    camera.position.z = camera.position.z - 2;
+    camera.position.x = camera.position.x - 2.4;
     scene.add(camera)
 
     // Controls
@@ -668,8 +699,9 @@ const loadGame = () => {
     controls.maxDistance = 6;
     controls.minDistance = 4;
     controls.maxPolarAngle = 1.3089969389957472
-    controls.enablePan = false
-    controls.target.set(ground.position.x - 1, ground.position.y + .3, ground.position.z)
+    controls.enablePan = false 
+    controls.target.set(2.07, 2.64, -2)
+
 
     /**
      * Renderer
@@ -739,7 +771,7 @@ const loadGame = () => {
 
 
         //Merging physicsBody with Threejs Mesh
-        if (models && models_duplicate) {
+        if (models && models_duplicate && env) {
         
             ballMesh.position.copy(ballBody.position)
             ballMesh.quaternion.copy(ballBody.quaternion)

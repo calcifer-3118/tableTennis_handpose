@@ -740,10 +740,10 @@ make it thinner, then set it to again wrap around the entire parent element.
 
 .card-container_pause .card{
   position: absolute;
-  top: 15vh;
-  left: 23vw;
-  width: 50%;
-  height: 60%;
+  top: 0;
+  left: 0;
+  width: 97vw;
+  height: 95vh;
   z-index: 500;
   display: flex;
   flex-direction: column;
