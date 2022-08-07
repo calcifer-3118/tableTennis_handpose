@@ -6,11 +6,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import gsap from 'gsap'
 import {Hands} from '@mediapipe/hands'
 import {Camera} from '@mediapipe/camera_utils'
-import { GUI } from 'dat.gui'
 
 
 //Debugging
-const gui = new GUI();
+// const gui = new GUI();
 
 let isMuted = false;
 let models;
@@ -59,9 +58,9 @@ window.loadHand = ()=>{
         }
         async function load() {
 
-            models = await loadModel('/models/scene.glb')
-            models_duplicate = await loadModel('/models/scene.glb')
-            env = await loadModel('/models/env.glb')
+            models = await loadModel('models/scene.glb')
+            models_duplicate = await loadModel('models/scene.glb')
+            env = await loadModel('models/env.glb')
             loaded = true;
 
         }
