@@ -33,7 +33,7 @@
     "three": "^0.130.1",
     "webpack": "^5.42.1",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-dev-server": "^4.9.3",
     "webpack-merge": "^5.8.0"
   }
 }
