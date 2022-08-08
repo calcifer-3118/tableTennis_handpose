@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+    <title>Table Tennis</title>
+    <!-- ModelViewer -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <style>
+      
+      model-viewer{   
+          --poster-color: wheat;
+            width: 100vw;
+            height: 100vh;
+        }
+        </style>
+
+</head>
+<body>
+    <canvas class="webgl"></canvas>
+    <canvas class="canvas"></canvas>
+    <video class="video" style="display: none;"></video>
+    
+    <div class="score">
+
+        <div class="p1">
+            <div class="conatiner">
+                <div class="p1_name">Player 1</div>
+            </div>
+            <div class="progress_p1">
+            <div class="progress-done_p1" data-done="50">
+            </div>
+            </div>
+        </div>
+
+        <div class="scoreNumber">
+            <h1 class="p1_num" style="color: aliceblue; font-size:50px;">0 &#160 &#160 &#160</h1>
+            <h1 style="color: beige; font-size:50px;"> : &#160 &#160 &#160</h1>
+            <h1 class="p2_num" style="color: aliceblue; font-size:50px;">0</h1>
+        </div>
+
+        <div class="gameWon">
+            <div class="gameWon_text">0</div>
+        </div>
+
+        <div class="p2">
+            <div class="conatiner">
+                <div class="p2_name">AI</div>
+            </div>
+            
+            <div class="progress_p2">
+            <div class="progress-done_p2" data-done="50">
+            </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+
+<div class="card-container">
+    <div class="card">
+      
+        <div class="options">
+       
+            <div class="slider-container">
+                <div class="slider-bar"> <p class="slider_p"> Difficulty </p> </div>
+                
+                <svg class="slider-progress" viewBox="0 0 51 6">
+                    <path class="progress-path" xmlns="http://www.w3.org/2000/svg" d="M 13 3 L 20.5 3 Q 22 3 23 1" stroke="#5a38e0" stroke-width="1" fill="none" stroke-linecap="round"/>
+                </svg>
+                <div class="slider-circle" style="transform: translate(-50%, -50%) translateX(-2.5rem); top: 1em;">
+                    <div class="slider-text">0</div>
+                </div>
+                <input type="range" class="slider" value="400" min="-400" max="1400">
+            </div>
+           
+            <div class="music"> 
+                <i class="fas fa-volume-mute" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px; display: none;"></i>
+                <i class="fas fa-volume-up" style="color: rgb(158, 136, 107); margin-right: 22px; margin-top: -3px; font-size: 30px;"></i>
+                <label class="switch">
+                    <input class="checkbox" type="checkbox" checked onchange="doalert(this)">
+                    <div>
+                        <span></span>
+                    </div>
+                </label>
+            </div>
+           
+        </div>
+        
+  </div>
+</div>
+
+    <div class = 'search-box'>
+        <input class = "search-text" type="text" placeholder = "Enter your GameTag...">
+      <a href="#" class = "search-btn">
+        <i class="fas fa-gamepad"></i>
+      </a>
+    </div>
+
+
+    <div class="card-container_htp">
+        <div class="card">
+            <h1>How To Play</h1>
+            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+            <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_empnvxc1.json"  background="transparent"  speed="1"  style="width: 400px; position: absolute; top: -25%; left: 35%;"  loop autoplay></lottie-player>
+            <p class="htp_p" style="padding: 30px; margin:4px">Make sure you have a supported webcam and permissions for the webcam are granted. <br>Control the racket with your hand by moving it in front of the camera. Do a serve by pushing your hand forward.</p>
+            <div class="svg-wrapper">
+                <svg height="40" width="150" xmlns="http://www.w3.org/2000/svg">
+                  <rect id="shape" height="40" width="150" />
+                  <div id="text">
+                    <a onclick="window.loadHand()"><span class="spot"></span>Lets' Go</a>
+                  </div>
+                </svg>
+              </div>
+        </div>
+    </div>
+
+
+    <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_rwbbf6ns.json" class="loading" background="#DE80AA"  speed="1"  style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; display: none; z-index: 900;"  loop  autoplay></lottie-player>
+
+
+    <div class="card-container_pause" style="display: none;">
+        <div class="card">
+            <h1 style="font-size: 50px; padding-bottom: 30px;">Game Paused</h1>
+            <h1 class="hoverableH1" onclick="resumeGame()" >Resume</h1>
+            <h1 class="hoverableH1" onclick="mainMenu()">Main Menu</h1>
+        </div>
+    </div>
+   
+    <div class="continue_wrapper">
+        <a class="cta" href="#about-me">
+          <span>Continue</span>
+          <span>
+            <svg width="66px" height="43px" viewBox="0 0 66 43" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <g id="arrow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <path class="one" d="M40.1543933,3.89485454 L43.9763149,0.139296592 C44.1708311,-0.0518420739 44.4826329,-0.0518571125 44.6771675,0.139262789 L65.6916134,20.7848311 C66.0855801,21.1718824 66.0911863,21.8050225 65.704135,22.1989893 C65.7000188,22.2031791 65.6958657,22.2073326 65.6916762,22.2114492 L44.677098,42.8607841 C44.4825957,43.0519059 44.1708242,43.0519358 43.9762853,42.8608513 L40.1545186,39.1069479 C39.9575152,38.9134427 39.9546793,38.5968729 40.1481845,38.3998695 C40.1502893,38.3977268 40.1524132,38.395603 40.1545562,38.3934985 L56.9937789,21.8567812 C57.1908028,21.6632968 57.193672,21.3467273 57.0001876,21.1497035 C56.9980647,21.1475418 56.9959223,21.1453995 56.9937605,21.1432767 L40.1545208,4.60825197 C39.9574869,4.41477773 39.9546013,4.09820839 40.1480756,3.90117456 C40.1501626,3.89904911 40.1522686,3.89694235 40.1543933,3.89485454 Z" fill="#FFFFFF"></path>
+                <path class="two" d="M20.1543933,3.89485454 L23.9763149,0.139296592 C24.1708311,-0.0518420739 24.4826329,-0.0518571125 24.6771675,0.139262789 L45.6916134,20.7848311 C46.0855801,21.1718824 46.0911863,21.8050225 45.704135,22.1989893 C45.7000188,22.2031791 45.6958657,22.2073326 45.6916762,22.2114492 L24.677098,42.8607841 C24.4825957,43.0519059 24.1708242,43.0519358 23.9762853,42.8608513 L20.1545186,39.1069479 C19.9575152,38.9134427 19.9546793,38.5968729 20.1481845,38.3998695 C20.1502893,38.3977268 20.1524132,38.395603 20.1545562,38.3934985 L36.9937789,21.8567812 C37.1908028,21.6632968 37.193672,21.3467273 37.0001876,21.1497035 C36.9980647,21.1475418 36.9959223,21.1453995 36.9937605,21.1432767 L20.1545208,4.60825197 C19.9574869,4.41477773 19.9546013,4.09820839 20.1480756,3.90117456 C20.1501626,3.89904911 20.1522686,3.89694235 20.1543933,3.89485454 Z" fill="#FFFFFF"></path>
+                <path class="three" d="M0.154393339,3.89485454 L3.97631488,0.139296592 C4.17083111,-0.0518420739 4.48263286,-0.0518571125 4.67716753,0.139262789 L25.6916134,20.7848311 C26.0855801,21.1718824 26.0911863,21.8050225 25.704135,22.1989893 C25.7000188,22.2031791 25.6958657,22.2073326 25.6916762,22.2114492 L4.67709797,42.8607841 C4.48259567,43.0519059 4.17082418,43.0519358 3.97628526,42.8608513 L0.154518591,39.1069479 C-0.0424848215,38.9134427 -0.0453206733,38.5968729 0.148184538,38.3998695 C0.150289256,38.3977268 0.152413239,38.395603 0.154556228,38.3934985 L16.9937789,21.8567812 C17.1908028,21.6632968 17.193672,21.3467273 17.0001876,21.1497035 C16.9980647,21.1475418 16.9959223,21.1453995 16.9937605,21.1432767 L0.15452076,4.60825197 C-0.0425130651,4.41477773 -0.0453986756,4.09820839 0.148075568,3.90117456 C0.150162624,3.89904911 0.152268631,3.89694235 0.154393339,3.89485454 Z" fill="#FFFFFF"></path>
+              </g>
+            </svg>
+          </span> 
+        </a>
+      </div>
+
+
+
+
+  <div class="modal-container" id="about-me" style="--m-background: hsl(220, 25%, 10%); z-index: 1000;">
+    <div class="modal" style="--m-shadow: 0 0 10rem 0">
+      <h1 class="modal__title">Thanks for Playing!!!</h1>
+      <p class="modal__text">Bonjour!, I'm calcifer-a young, passionate self-taught game developer from India. Hope you enjoyed the game. Checkout more of my projects and share your valuable feedback!. Feel free to contact me at dheer.gamedev@gmail.com</p>
+      <button class="modal__btn" onclick="window.open('https://www.linkedin.com/in/dheer-jain/')">LinkedIn &rarr;</button>
+      <button class="modal__btn" onclick="window.open('https://github.com/calcifer-3118')">GitHub &rarr;</button>
+      <a href="index.html" class="link-2"></a>
+    </div>
+  </div>
+
+
+
+
+      
+
+    <model-viewer loading="eager" bounds="tight" src="models/scene.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls environment-image="neutral" shadow-intensity="1.32" auto-rotate shadow-softness="1" camera-orbit="-324.3deg 72.61deg auto" min-camera-orbit="auto 33deg 12.14m" max-camera-orbit="auto 80deg auto" min-field-of-view="38.09deg"   style="position: absolute; top:0%; z-index: 200;">
+        <button class="Hotspot" slot="hotspot-6" data-position="1.718199752457908m 1.7952758726521125m 0.9350524396117248m" data-normal="-0.7015896328786082m 0m -0.7125812143449055m" data-visibility-attribute="visible">
+        <div class="HotspotAnnotation" onclick="loadHTP()">PLAY</div>
+        
+      </button>
+      <div id="lazy-load-poster" slot="poster"></div>
+      </div>
+       
+
+    </model-viewer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+
+
+    <script>
+      const modelViewer = document.getElementsByTagName('model-viewer')[0]; 
+      modelViewer.addEventListener('model-visibility', ()=> {
+        setTimeout(()=>{
+          modelViewer.style.top = '8%'
+          modelViewer.style.zIndex = 10;
+        }, 500)
+      })
+    </script>
+
+
+    <script>
+
+            
+let i = 0;
+let inputpos = 0.5;
+let offsetY = 0;
+const slider = document.querySelector(".slider");
+const slidercircle = document.querySelector(".slider-circle");
+const slidertext = document.querySelector(".slider-text");
+const progresspath = document.querySelector(".progress-path");
+let mousedown = false;
+
+const updateCircle = () => {
+	// position the circle horizontally
+	slidercircle.style.transform = `translate(-50%, -50%) translateX(${inputpos * 18 - 12.5}rem)`;
+    
+	// position the circle vertically;
+    if(inputpos < 0.1)
+    {
+        inputpos = 0.1;
+    }
+	else if (inputpos >= 1.05) {
+		slidercircle.style.top = "3em";
+		slidertext.innerHTML = "10";
+	} else if (inputpos <= -0.05) {
+		slidercircle.style.top = "3em";
+		slidertext.innerHTML = "0";
+	} else {
+		slidercircle.style.top = `${(Math.round(inputpos * 10) % 2) * 4 + 1}em`;
+		slidertext.innerHTML = String(Math.round(inputpos * 10));
+	}
+	
+	// make the path link to the ball
+	progresspath.setAttribute("d",
+														`M 13 3
+														L ${Math.max(inputpos * 25 + 10.5, 13)} 3
+														Q ${Math.max(inputpos * 25 + 12, 13)} 3
+														${inputpos * 25 + 13} ${getComputedStyle(slidercircle).top.slice(0, -2) / 14.4}`);
+}
+
+// detect if the slider is held
+slider.onmousedown = function (evt) {
+	mousedown = true;
+};
+
+slider.addEventListener('touchstart', () => {
+	mousedown = true;
+});
+
+document.body.onmouseup = function (evt) {
+	if (evt.button == 0) { mousedown = false; }
+};
+
+slider.addEventListener('touchend', () => {
+	mousedown = false;
+});
+
+slider.addEventListener("input", (e) => {
+	// get the slider value
+	inputpos = slider.value * 0.001 ;
+	
+	// make soft bounds
+	if (inputpos < 0) {
+		inputpos = 1.25 * Math.pow(inputpos + 0.4, 2) - 0.2;
+	}
+	if (inputpos > 1) {
+		inputpos = -1.25 * Math.pow(inputpos - 1.4, 2) + 1.2;
+	}
+	
+	// update the circle and line position
+	updateCircle();
+});
+
+// every frame (60 times per second)
+setInterval(function () {
+	
+	// if the slider isnt held
+	if (!mousedown) {
+		
+		// find the closest valid position
+		const targetpos = Math.min(Math.max(Math.round(inputpos * 10) / 10, 0), 1);
+		
+		// softly glide to that position
+		if (Math.abs(inputpos - targetpos) < 0.001) {
+			inputpos = targetpos;
+			slider.value = Math.round(inputpos * 1000);
+		} else {
+			inputpos = 0.9 * inputpos + 0.1 * targetpos;
+			slider.value = Math.round(inputpos * 1000);
+		}
+	}
+	
+	// update the circle and the line position
+	updateCircle();
+	
+}, 1000 / 60);
+            
+    </script>
+
+    <script>
+        const cards = document.querySelectorAll(".card");
+// const onDocumentMouseMoveHandler = (evt) => {
+//   evt.preventDefault();
+
+//   requestAnimationFrame(() => {
+//     if (!evt.target.closest('.card')) {
+//       card.style.transform = 'perspective(1000px) scale(1) rotateX(0) rotateY(0)';
+//     }
+//   });
+// };
+// document.addEventListener('mousemove', onDocumentMouseMoveHandler)
+cards.forEach((card) => {
+  const height = card.clientHeight;
+  const width = card.clientWidth;
+
+  const mouseMoveHandler = (evt) => {
+    evt.preventDefault();
+
+    requestAnimationFrame(() => {
+      const xRotation = -30 * ((evt.layerY - height / 2) / height);
+      const yRotation = 20 * ((evt.layerX - width / 2) / width);
+
+      card.style.transform = `perspective(1000px) scale(1.05) rotateX(${xRotation}deg) rotateY(${yRotation}deg)`;
+    });
+  };
+
+  card.addEventListener("mousemove", mouseMoveHandler);
+
+  card.addEventListener("mouseenter", (evt) => {
+    evt.preventDefault();
+    card.addEventListener("mousemove", mouseMoveHandler);
+  });
+
+  card.addEventListener("mouseout", (evt) => {
+    evt.preventDefault();
+    card.style.transform = "perspective(1000px) scale(1) rotateX(0) rotateY(0)";
+    card.removeEventListener("mousemove", mouseMoveHandler);
+  });
+  
+ 
+});
+
+    </script>
+
+
+
+
+
+
+
+
+    
+</body>
+</html>
