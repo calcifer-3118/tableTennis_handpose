@@ -16,6 +16,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 // const gui = new GUI();
 
 let isMuted = false;
+window.play = false;
 let models;
 let models_duplicate;
 let env;
@@ -33,25 +34,24 @@ window.doalert = (checkboxElem)=>{
    }     
 
 
+
 window.loadHTP = ()=>{
     document.getElementsByClassName('card-container_htp')[0].style.display = 'initial';
-}   
+}
 
 
-window.loadHand = ()=>{
-
-    document.getElementsByClassName('loading')[0].style.display = 'initial';
-    document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
-    document.getElementsByClassName('options')[0].style.display = 'none';
-
+    if(play){
+        document.getElementsByClassName('loading')[0].style.display = 'initial';
+        document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
+        document.getElementsByClassName('options')[0].style.display = 'none';
+    }
     const handDetection = ()=>{
         const videoElement = document.getElementsByClassName('video')[0];
-               
         /**
          * Load Models
          */
-        
         let loaded = false;
+        
 
         const texLoader = new THREE.TextureLoader();
         const loadTextures = (url)=>{
@@ -104,7 +104,7 @@ window.loadHand = ()=>{
         let isExecuted = false;
         let controlRacket;
         function onResults(results) {
-            if(loaded){
+            if(loaded && play){
                 if(!isExecuted){
                     controlRacket = loadGame();
                     isExecuted = true;
@@ -132,14 +132,27 @@ window.loadHand = ()=>{
           height: 250
         });
         camera.start();
-}
+    }
 
-handDetection();
+    handDetection();
 
 
-}
 
-const loadGame = () => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const loadGame = () => {
 
   
     /**
