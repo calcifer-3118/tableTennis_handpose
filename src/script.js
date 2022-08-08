@@ -40,8 +40,8 @@ window.loadHTP = ()=>{
 }
 
 
-    if(play){
-        document.getElementsByClassName('loading')[0].style.display = 'initial';
+if(play){
+        
         document.getElementsByClassName('card-container_htp')[0].style.display = 'none';
         document.getElementsByClassName('options')[0].style.display = 'none';
     }
