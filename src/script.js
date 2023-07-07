@@ -81,7 +81,7 @@ if(play){
      
         //DRACOLoader instance to decode compressed mesh data
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath( '/' );
+        dracoLoader.setDecoderPath( '' );
 
         const loader = new GLTFLoader();
         loader.setDRACOLoader( dracoLoader );
